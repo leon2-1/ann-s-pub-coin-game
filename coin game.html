@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guinness Flip Challenge | Flannery's Pub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --guinness-black: #0a0806;
+            --guinness-brown: #2a2015;
+            --guinness-gold: #c5a059;
+            --gold-hover: #e0bb6c;
+            --text-light: #f4f0e6;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--guinness-black);
+            color: var(--text-light);
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, var(--guinness-brown) 0%, var(--guinness-black) 100%);
+            padding: 1rem 0; /* 移动端上下留白 */
+        }
+
+        .game-board {
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            padding: 2.5rem 2rem;
+            border: 2px solid var(--guinness-gold);
+            border-radius: 12px;
+            background: rgba(10, 8, 6, 0.85);
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.15), inset 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .pub-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--guinness-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .game-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 2.5rem); /* 响应式字体 */
+            margin: 0;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .slogan {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: var(--guinness-gold);
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .rules-card {
+            background: rgba(197, 160, 89, 0.05);
+            border: 1px dashed rgba(197, 160, 89, 0.4);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .rules-card h3 {
+            margin-top: 0;
+            font-family: 'Playfair Display', serif;
+            color: var(--guinness-gold);
+            text-align: center;
+            border-bottom: 1px solid rgba(197, 160, 89, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .rules-card ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .rules-card li {
+            margin-bottom: 0.8rem;
+            line-height: 1.5;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+        }
+
+        .gold-text {
+            color: var(--guinness-gold);
+            font-weight: bold;
+        }
+
+        /* 响应式硬币容器 */
+        .coin-container {
+            perspective: 1000px;
+            margin: 2rem auto;
+            width: clamp(100px, 25vw, 140px);
+            height: clamp(100px, 25vw, 140px);
+        }
+
+        .coin {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 3s cubic-bezier(0.175, 0.885, 0.32, 1); 
+        }
+
+        .coin-face {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: bold;
+            font-family: 'Playfair Display', serif;
+            border: 6px solid var(--guinness-gold);
+            box-sizing: border-box;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6), 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        .heads {
+            background: radial-gradient(circle, #e6c27a 0%, var(--guinness-gold) 100%);
+            color: var(--guinness-black);
+        }
+
+        .tails {
+            background: radial-gradient(circle, #333 0%, #111 100%);
+            color: var(--guinness-gold);
+            transform: rotateY(180deg);
+        }
+
+        .action-btn {
+            background: var(--guinness-gold);
+            color: var(--guinness-black);
+            border: none;
+            padding: 1rem 2rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(197, 160, 89, 0.3);
+            width: 80%;
+            max-width: 300px; /* 限制最大宽度 */
+        }
+
+        .action-btn:hover {
+            background: var(--gold-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(197, 160, 89, 0.5);
+        }
+
+        .action-btn:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .result-box {
+            margin-top: 1.5rem;
+            font-size: clamp(1rem, 2vw, 1.1rem);
+            min-height: 70px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        .win { color: #50c878; font-weight: bold; font-size: clamp(1.1rem, 2vw, 1.2rem);}
+        .lose { color: #ff6b6b; font-weight: bold; font-size: clamp(1.1rem, 2vw, 1.2rem);}
+        
+        /* 统计面板样式 */
+        .stats-panel {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-top: 1px solid rgba(197, 160, 89, 0.2);
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+        
+        .stats-panel span {
+            color: var(--guinness-gold);
+            font-weight: bold;
+        }
+
+        /* 新增：门店信息面板 */
+        .pub-info-card {
+            background: rgba(197, 160, 89, 0.05);
+            border: 1px dashed rgba(197, 160, 89, 0.4);
+            padding: 1.2rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 2rem;
+            font-size: clamp(0.85rem, 2vw, 0.95rem);
+        }
+
+        .pub-info-card h3 {
+            margin-top: 0;
+            font-family: 'Playfair Display', serif;
+            color: var(--guinness-gold);
+            margin-bottom: 0.8rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+        }
+
+        .pub-info-card p {
+            margin: 0.4rem 0;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-board">
+        <header>
+            <div class="pub-subtitle">Flannery's Pub Presents</div>
+            <h1 class="game-title">Guinness Flip Challenge</h1>
+            <div class="slogan">"Luck guys the round"</div>
+        </header>
+
+        <div class="rules-card">
+            <h3>Game Rules</h3>
+            <ul>
+                <li><span class="gold-text">1.</span> Pay <b>1€</b> to participate in a coin flip challenge.</li>
+                <li><span class="gold-text">2.</span> <b>HEADS (Win):</b> Your pint of Guinness is FREE, and the 1€ entry fee is fully refunded! 🍺</li>
+                <li><span class="gold-text">3.</span> <b>TAILS (Lose):</b> The 1€ entry fee is kept, and you must pay full price for your pint. 💸</li>
+            </ul>
+        </div>
+
+        <div class="coin-container">
+            <div class="coin" id="coin">
+                <div class="coin-face heads">HEADS</div>
+                <div class="coin-face tails">TAILS</div>
+            </div>
+        </div>
+
+        <button id="flip-btn" class="action-btn">Pay 1€ & Flip Coin</button>
+
+        <div id="result-box" class="result-box">
+            <!-- 结果将在这里显示 -->
+        </div>
+        
+        <!-- 游戏统计面板 -->
+        <div class="stats-panel">
+            Total Flips: <span id="total-flips">0</span> | 
+            Wins: <span id="win-count">0</span> | 
+            Losses: <span id="loss-count">0</span>
+        </div>
+
+        <!-- 新增：门店信息面板（包含地址和电话） -->
+        <div class="pub-info-card">
+            <h3>Visit Flannery's Pub</h3>
+            <p><span class="gold-text">Address:</span> 13 Sean Costelloe Street, Athlone, Ireland</p>
+            <p><span class="gold-text">Phone:</span> +353 86 831 3160</p>
+        </div>
+    </div>
+
+    <script>
+        const coin = document.getElementById('coin');
+        const flipBtn = document.getElementById('flip-btn');
+        const resultBox = document.getElementById('result-box');
+        
+        // 统计变量
+        const totalFlipsEl = document.getElementById('total-flips');
+        const winCountEl = document.getElementById('win-count');
+        const lossCountEl = document.getElementById('loss-count');
+        let totalFlips = 0;
+        let winCount = 0;
+        let lossCount = 0;
+
+        let isFlipping = false;
+        let lastRotation = 0; // 记录上次旋转角度，避免累加过大
+
+        // 音效函数（使用Web Audio API，兼容大部分浏览器）
+        function playSound(type) {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            switch(type) {
+                case 'flip': // 翻转音效（低沉的旋转声）
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(150, audioContext.currentTime);
+                    oscillator.frequency.exponentialRampToValueAtTime(80, audioContext.currentTime + 2.5);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 3);
+                    break;
+                case 'win': // 胜利音效（欢快的短音）
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(554, audioContext.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.8);
+                    break;
+                case 'lose': // 失败音效（低沉的短音）
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(196, audioContext.currentTime);
+                    oscillator.frequency.setValueAtTime(165, audioContext.currentTime + 0.2);
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.8);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.8);
+                    break;
+            }
+        }
+
+        // 更新统计面板
+        function updateStats() {
+            totalFlipsEl.textContent = totalFlips;
+            winCountEl.textContent = winCount;
+            lossCountEl.textContent = lossCount;
+        }
+
+        flipBtn.addEventListener('click', () => {
+            if (isFlipping) return;
+            
+            // 确认弹窗（防止误点击）
+            const confirmFlip = confirm("Are you sure you want to pay 1€ to flip the coin?");
+            if (!confirmFlip) return;
+
+            // 游戏状态锁定
+            isFlipping = true;
+            flipBtn.disabled = true;
+            resultBox.innerHTML = "Flipping... Good luck! 🤞";
+            
+            // 播放翻转音效
+            playSound('flip');
+
+            // 核心逻辑：50%的概率
+            const isHeads = Math.random() < 0.5;
+            totalFlips++; // 统计+1
+
+            // 每次翻转固定旋转5圈（1800度），基于上一次的角度继续
+            const baseSpins = 1800; 
+            const extraSpin = isHeads ? 0 : 180; 
+            const totalRotation = lastRotation + baseSpins + extraSpin;
+            
+            // 记录本次旋转角度，用于下次翻转
+            lastRotation = totalRotation;
+
+            // 应用CSS翻转
+            coin.style.transform = `rotateY(${totalRotation}deg)`;
+
+            // 等待3秒（与CSS过渡时间相同），然后显示结果
+            setTimeout(() => {
+                isFlipping = false;
+                flipBtn.disabled = false;
+                flipBtn.innerText = "Try Again (Pay 1€)";
+
+                if (isHeads) {
+                    winCount++;
+                    playSound('win'); // 胜利音效
+                    resultBox.innerHTML = `
+                        <div class="win">🎉 HEADS! YOU WIN! 🎉</div>
+                        Enjoy your FREE pint of Guinness! Your 1€ is refunded.
+                    `;
+                } else {
+                    lossCount++;
+                    playSound('lose'); // 失败音效
+                    resultBox.innerHTML = `
+                        <div class="lose">💀 TAILS! YOU LOSE! 💀</div>
+                        We keep the 1€. Please pay full price for your pint.
+                    `;
+                }
+                
+                // 更新统计面板
+                updateStats();
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
